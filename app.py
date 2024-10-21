@@ -33,8 +33,8 @@ app.add_middleware(
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = '1-Bsdmj9TK8DFM-HSwipckPW5a0RNNKVA'
-output_file = 'generator_epoch_10.h5'
+file_id = '1-FIf-o38XVkE9wECQwnVOvSheHkDHgy0'
+output_file = '21g20.h5'
 
 # Check if the model file already exists
 if not os.path.isfile(output_file):
