@@ -3,7 +3,6 @@ import os
 import traceback
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
-from tensorflow.keras.models import load_model
 import numpy as np
 from PIL import Image
 from io import BytesIO
@@ -11,6 +10,7 @@ import requests
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import gdown
+import tensorflow as tf
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,10 +33,10 @@ app.add_middleware(
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = '1-FIf-o38XVkE9wECQwnVOvSheHkDHgy0'
-output_file = '21g20.h5'
+file_id = '1pPNZekBugarZYUonsT2c2v1Et540gbMl'
+output_file = "model_quantized.tflite"
 
-# Check if the model file already exists
+# # Check if the model file already exists
 if not os.path.isfile(output_file):
     # Construct the download URL
     download_url = f"https://drive.google.com/uc?id={file_id}"
@@ -46,8 +46,42 @@ if not os.path.isfile(output_file):
 else:
     logging.info(f"{output_file} already exists. No download needed.")
 
-# Load the model
-model = load_model(output_file)
+# # Convert the model to TensorFlow Lite format with quantization
+# tflite_model_file = 'model_quantized.tflite'
+# if not os.path.isfile(tflite_model_file):
+#     model = tf.keras.models.load_model(output_file)
+    
+#     # Set up the TFLite converter with quantization
+#     converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    
+#     # Enable full integer quantization
+#     converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    
+#     # Optionally, set a representative dataset for better accuracy during quantization
+#     def representative_data_gen():
+#         for _ in range(100):
+#             # Yield random data as an example (adjust to your real input)
+#             yield [np.random.rand(1, 256, 256, 3).astype(np.float32)]
+    
+#     converter.representative_dataset = representative_data_gen
+#     converter.target_spec.supported_types = [tf.float16]  # Use float16 precision
+    
+#     # Convert the model
+#     tflite_model = converter.convert()
+    
+#     # Save the quantized model
+#     with open(tflite_model_file, 'wb') as f:
+#         f.write(tflite_model)
+# else:
+#     logging.info(f"{tflite_model_file} already exists. No conversion needed.")
+
+# Load TensorFlow Lite model into an interpreter
+interpreter = tf.lite.Interpreter(model_path=output_file)
+interpreter.allocate_tensors()
+
+# Get input and output details for the model
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 class ImageRequest(BaseModel):
     image: dict
@@ -94,8 +128,14 @@ async def predict(request: Request):
         image = np.array(img) / 255.0  # Normalize the image
         image = np.expand_dims(image, axis=0)  # Add batch dimension
         
-        # Make the prediction
-        prediction = model.predict(image)
+        # Set the input tensor
+        interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
+        
+        # Run the inference
+        interpreter.invoke()
+
+        # Get the prediction result
+        prediction = interpreter.get_tensor(output_details[0]['index'])
 
         # Convert the prediction back to an image
         predicted_image = (prediction[0] * 255).astype(np.uint8)
