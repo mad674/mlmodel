@@ -9,28 +9,3 @@ fastapi
 pydantic
 uvicorn
 gdown
-
-
-
-
-
-
-
-
-
-
-
-
-# Define the file name and output path
-file_id = '1-Fe2VvvQ9NXrv0Kz2BUVdk4MdQV2HjOW'
-output_file = 'a20.keras'
-
-# Check if the file already exists
-if not os.path.isfile(output_file):
-    # Construct the download URL
-    download_url = f"https://drive.google.com/uc?id={file_id}"
-    
-    # Download the file
-    gdown.download(download_url, output_file, quiet=False)
-else:
-    print(f"{output_file} already exists. No download needed.")
