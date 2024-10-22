@@ -315,7 +315,6 @@
 
 
 
-
 import logging
 import os
 import traceback
@@ -391,12 +390,17 @@ def predict():
         image_data = data['image']['_streams'][1]  # Adjust according to your structure
         logging.debug(f"Image data URL: {image_data}")
 
+        # Extract file format
+        p = image_data.split('/')[-1]  # Extract file name from URL
+        a = p.split('.')[-1].upper()  # Extract file extension
+        if a == 'JPG':
+            a = 'JPEG'
+            p = p.replace('JPG', 'JPEG')
+
         # Fetch the image from the URL
         response = requests.get(image_data)
-        if response.status_code != 200:
-            logging.error(f"Failed to fetch image, status code: {response.status_code}")
-            return jsonify({"detail": "Failed to fetch image"}), 500
-        
+        logging.debug(f"Fetched image with status code: {response.status_code} and size: {len(response.content)}")
+
         img = Image.open(BytesIO(response.content)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
@@ -404,20 +408,19 @@ def predict():
         image = np.array(img) / 255.0  # Normalize the image
         image = np.expand_dims(image, axis=0)  # Add batch dimension
 
-        # Log the input tensor shape
+        # Log input tensor shape
         logging.debug(f"Input tensor shape: {image.shape}")
-
+        
         # Set the input tensor
         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
-
+        
         # Run the inference
         logging.debug("Invoking the model.")
         interpreter.invoke()
-        logging.debug("Model invoked successfully.")
 
         # Get the prediction result
         prediction = interpreter.get_tensor(output_details[0]['index'])
-        logging.debug(f"Prediction output: {prediction}")
+        logging.debug(f"Prediction shape: {prediction.shape}")
 
         # Convert the prediction back to an image
         predicted_image = (prediction[0] * 255).astype(np.uint8)
@@ -425,16 +428,12 @@ def predict():
 
         # Save the predicted image in memory (without writing to disk)
         image_io = BytesIO()
-        output_image.save(image_io, format='PNG')  # Save as PNG or adjust if needed
+        output_image.save(image_io, format=a)  # Save as JPEG or other format
         image_io.seek(0)  # Move to the beginning of the BytesIO buffer
-
-        # Handling the file name and format
-        p = data['user']  # Assuming the user field contains the filename
-        a = p.split('.')[-1].upper()  # Extract the file extension and convert to uppercase
 
         # Send the image to the Node.js server
         files = {
-            'images': (f'{p}', image_io, f'image/{a.lower()}'),  # Use the correct image format
+            'images': (f'{p}', image_io, f'image/{a.lower()}'),
             'name': (None, data['user']),
             'filename': (None, f'{p}'),
         }
