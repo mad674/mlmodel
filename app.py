@@ -316,7 +316,6 @@
 
 
 
-
 import logging
 import os
 import traceback
@@ -386,25 +385,17 @@ def predict():
 
         # Check for image data
         if 'image' not in data:
-            logging.error("No image data provided in the request.")
             return jsonify({"detail": "No image data provided"}), 400
         
         # Extract image URL from the JSON structure
         image_data = data['image']['_streams'][1]  # Adjust according to your structure
-        a = image_data.split('uploads/')[1]
-        p = a
-        a = a[len(a) - (len(a) - a.find('.')) + 1:].upper()  # Get the image extension
-        if a == 'JPG':
-            a = 'JPEG'
-            p = p.replace('JPG', 'JPEG')
-        
         logging.debug(f"Image data URL: {image_data}")
-        
+
         # Fetch the image from the URL
         response = requests.get(image_data)
         if response.status_code != 200:
-            logging.error(f"Failed to fetch image from URL: {image_data}, status code: {response.status_code}")
-            return jsonify({"detail": "Failed to fetch image"}), 400
+            logging.error(f"Failed to fetch image, status code: {response.status_code}")
+            return jsonify({"detail": "Failed to fetch image"}), 500
         
         img = Image.open(BytesIO(response.content)).convert('RGB')  # Ensure it's in RGB format
         
@@ -412,21 +403,21 @@ def predict():
         img = img.resize((256, 256))  # Resize image for the model
         image = np.array(img) / 255.0  # Normalize the image
         image = np.expand_dims(image, axis=0)  # Add batch dimension
-        
-        # Log input tensor shape
+
+        # Log the input tensor shape
         logging.debug(f"Input tensor shape: {image.shape}")
 
         # Set the input tensor
         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
-        
+
         # Run the inference
+        logging.debug("Invoking the model.")
         interpreter.invoke()
+        logging.debug("Model invoked successfully.")
 
         # Get the prediction result
         prediction = interpreter.get_tensor(output_details[0]['index'])
-        
-        # Log output tensor shape
-        logging.debug(f"Output tensor shape: {prediction.shape}")
+        logging.debug(f"Prediction output: {prediction}")
 
         # Convert the prediction back to an image
         predicted_image = (prediction[0] * 255).astype(np.uint8)
@@ -434,12 +425,16 @@ def predict():
 
         # Save the predicted image in memory (without writing to disk)
         image_io = BytesIO()
-        output_image.save(image_io, format=a)  # Save as JPEG or other format
+        output_image.save(image_io, format='PNG')  # Save as PNG or adjust if needed
         image_io.seek(0)  # Move to the beginning of the BytesIO buffer
+
+        # Handling the file name and format
+        p = data['user']  # Assuming the user field contains the filename
+        a = p.split('.')[-1].upper()  # Extract the file extension and convert to uppercase
 
         # Send the image to the Node.js server
         files = {
-            'images': (f'{p}', image_io, f'image/{a.lower()}'),
+            'images': (f'{p}', image_io, f'image/{a.lower()}'),  # Use the correct image format
             'name': (None, data['user']),
             'filename': (None, f'{p}'),
         }
@@ -464,16 +459,3 @@ def predict():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
     app.run(host="0.0.0.0", port=port)
-
-
-
-
-
-
-
-
-
-
-
-
-
