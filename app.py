@@ -366,9 +366,9 @@ output_details = interpreter.get_output_details()
 def root():
     return jsonify({"message": "Hello World"})
 
+
 @app.route("/predict", methods=["POST"])
 def predict():
-    # Set maximum upload size to 16 MB
     max_upload_size = 16 * 1024 * 1024  # 16 MB
     content_length = request.headers.get("Content-Length")
 
@@ -378,43 +378,34 @@ def predict():
     try:
         logging.debug("Received request for prediction.")
         
-        # Parse JSON body
         data = request.get_json()
         logging.debug(f"Received data: {data}")
 
-        # Check for image data
         if 'image' not in data:
             return jsonify({"detail": "No image data provided"}), 400
         
-        # Extract image URL from the JSON structure
-        image_data = data['image']['_streams'][1]  # Adjust according to your structure
+        image_data = data['image']['_streams'][1]
         logging.debug(f"Image data URL: {image_data}")
 
-        # Extract file format
-        p = image_data.split('/')[-1]  # Extract file name from URL
-        a = p.split('.')[-1].upper()  # Extract file extension
+        # Extract file name and format
+        p = image_data.split('/')[-1]
+        a = p.split('.')[-1].upper()
         if a == 'JPG':
             a = 'JPEG'
             p = p.replace('JPG', 'JPEG')
 
-        # Fetch the image from the URL
         response = requests.get(image_data)
         logging.debug(f"Fetched image with status code: {response.status_code} and size: {len(response.content)}")
 
-        img = Image.open(BytesIO(response.content)).convert('RGB')  # Ensure it's in RGB format
-        
-        # Preprocess the image for the model
-        img = img.resize((256, 256))  # Resize image for the model
-        image = np.array(img) / 255.0  # Normalize the image
-        image = np.expand_dims(image, axis=0)  # Add batch dimension
+        img = Image.open(BytesIO(response.content)).convert('RGB')
+        img = img.resize((256, 256))
+        image = np.array(img) / 255.0
+        image = np.expand_dims(image, axis=0)
 
-        # Log input tensor shape
         logging.debug(f"Input tensor shape: {image.shape}")
-        
-        # Set the input tensor
+
         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
-        
-        # Run the inference
+
         logging.debug("Invoking the model.")
         interpreter.invoke()
 
@@ -428,10 +419,9 @@ def predict():
 
         # Save the predicted image in memory (without writing to disk)
         image_io = BytesIO()
-        output_image.save(image_io, format=a)  # Save as JPEG or other format
-        image_io.seek(0)  # Move to the beginning of the BytesIO buffer
+        output_image.save(image_io, format=a)
+        image_io.seek(0)
 
-        # Send the image to the Node.js server
         files = {
             'images': (f'{p}', image_io, f'image/{a.lower()}'),
             'name': (None, data['user']),
@@ -441,7 +431,6 @@ def predict():
         logging.debug(f"Sending image to Node.js server for user: {data['user']}")
         response = requests.post(f'https://backend-9oaz.onrender.com/vendor/sktvendor/{data["user"]}', files=files)
 
-        # Check if the response from Node.js server is successful
         if response.status_code != 200:
             logging.error(f"Failed to upload image to Node.js server, status code: {response.status_code}")
             return jsonify({"detail": "Failed to upload image to Node.js server"}), 500
