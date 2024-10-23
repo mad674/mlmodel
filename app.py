@@ -498,6 +498,11 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
+@app.route('/health',methods=["GET"])
+def health_check():
+    return 'OK', 200
+
+
 @app.route("/", methods=["GET"])
 def root():
     return jsonify({"message": "Hello World"})
