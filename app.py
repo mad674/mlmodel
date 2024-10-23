@@ -315,6 +315,142 @@
 
 
 
+# import logging
+# import os
+# import traceback
+# from flask import Flask, request, jsonify
+# from flask_cors import CORS
+# from dotenv import load_dotenv
+# import numpy as np
+# from PIL import Image
+# from io import BytesIO
+# import requests
+# import gdown
+# import tensorflow as tf
+
+# # Load environment variables from .env file
+# load_dotenv()
+
+# # Disable oneDNN optimizations
+# os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+# app = Flask(__name__)
+# CORS(app)  # Allow CORS for all origins
+
+# # Setup logging
+# logging.basicConfig(level=logging.DEBUG)
+
+# # Define the file name and output path
+# file_id = '1pPNZekBugarZYUonsT2c2v1Et540gbMl'
+# output_file = "model_quantized.tflite"
+
+# # Check if the model file already exists
+# if not os.path.isfile(output_file):
+#     # Construct the download URL
+#     download_url = f"https://drive.google.com/uc?id={file_id}"
+    
+#     # Download the model file
+#     gdown.download(download_url, output_file, quiet=False)
+# else:
+#     logging.info(f"{output_file} already exists. No download needed.")
+
+# # Load TensorFlow Lite model into an interpreter
+# interpreter = tf.lite.Interpreter(model_path=output_file)
+# interpreter.allocate_tensors()
+
+# # Get input and output details for the model
+# input_details = interpreter.get_input_details()
+# output_details = interpreter.get_output_details()
+
+# @app.route("/", methods=["GET"])
+# def root():
+#     return jsonify({"message": "Hello World"})
+
+
+# @app.route("/predict", methods=["POST"])
+# def predict():
+#     max_upload_size = 16 * 1024 * 1024  # 16 MB
+#     content_length = request.headers.get("Content-Length")
+
+#     if content_length and int(content_length) > max_upload_size:
+#         return jsonify({"detail": "Payload Too Large"}), 413
+
+#     try:
+#         logging.debug("Received request for prediction.")
+        
+#         data = request.get_json()
+#         logging.debug(f"Received data: {data}")
+
+#         if 'image' not in data:
+#             return jsonify({"detail": "No image data provided"}), 400
+        
+#         image_data = data['image']['_streams'][1]
+#         logging.debug(f"Image data URL: {image_data}")
+
+#         # Extract file name and format
+#         p = image_data.split('/')[-1]
+#         a = p.split('.')[-1].upper()
+#         if a == 'JPG':
+#             a = 'JPEG'
+#             p = p.replace('JPG', 'JPEG')
+
+#         response = requests.get(image_data)
+#         logging.debug(f"Fetched image with status code: {response.status_code} and size: {len(response.content)}")
+
+#         img = Image.open(BytesIO(response.content)).convert('RGB')
+#         img = img.resize((256, 256))
+#         image = np.array(img) / 255.0
+#         image = np.expand_dims(image, axis=0)
+
+#         logging.debug(f"Input tensor shape: {image.shape}")
+
+#         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
+
+#         logging.debug("Invoking the model.")
+#         interpreter.invoke()
+
+#         # Get the prediction result
+#         prediction = interpreter.get_tensor(output_details[0]['index'])
+#         logging.debug(f"Prediction shape: {prediction.shape}")
+
+#         # Convert the prediction back to an image
+#         predicted_image = (prediction[0] * 255).astype(np.uint8)
+#         output_image = Image.fromarray(predicted_image)
+
+#         # Save the predicted image in memory (without writing to disk)
+#         image_io = BytesIO()
+#         output_image.save(image_io, format=a)
+#         image_io.seek(0)
+
+#         files = {
+#             'images': (f'{p}', image_io, f'image/{a.lower()}'),
+#             'name': (None, data['user']),
+#             'filename': (None, f'{p}'),
+#         }
+        
+#         logging.debug(f"Sending image to Node.js server for user: {data['user']}")
+#         response = requests.post(f'https://backend-9oaz.onrender.com/vendor/sktvendor/{data["user"]}', files=files)
+
+#         if response.status_code != 200:
+#             logging.error(f"Failed to upload image to Node.js server, status code: {response.status_code}")
+#             return jsonify({"detail": "Failed to upload image to Node.js server"}), 500
+
+#         logging.debug('Image successfully processed and sent to Node.js server')
+#         return jsonify({"message": "Image processed successfully", "node_response": response.json()})
+    
+#     except Exception as e:
+#         logging.error(f"Error processing the image: {str(e)}")
+#         logging.debug(traceback.format_exc())
+#         return jsonify({"detail": str(e)}), 500
+
+# # Run the Flask app
+# if __name__ == "__main__":
+#     port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
+#     app.run(host="0.0.0.0", port=port)
+
+
+
+
 import logging
 import os
 import traceback
@@ -366,7 +502,6 @@ output_details = interpreter.get_output_details()
 def root():
     return jsonify({"message": "Hello World"})
 
-
 @app.route("/predict", methods=["POST"])
 def predict():
     max_upload_size = 16 * 1024 * 1024  # 16 MB
@@ -394,16 +529,20 @@ def predict():
             a = 'JPEG'
             p = p.replace('JPG', 'JPEG')
 
+        # Fetch the image from the provided URL
         response = requests.get(image_data)
         logging.debug(f"Fetched image with status code: {response.status_code} and size: {len(response.content)}")
 
         img = Image.open(BytesIO(response.content)).convert('RGB')
-        img = img.resize((256, 256))
+        
+        # Resize the image to the size expected by the model (adjustable)
+        img = img.resize((128, 128))  # Resize to smaller dimensions
         image = np.array(img) / 255.0
         image = np.expand_dims(image, axis=0)
 
         logging.debug(f"Input tensor shape: {image.shape}")
 
+        # Set the image as input to the interpreter
         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
 
         logging.debug("Invoking the model.")
@@ -447,8 +586,6 @@ def predict():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
     app.run(host="0.0.0.0", port=port)
-
-
 
 
 
