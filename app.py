@@ -498,11 +498,6 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-@app.route('/health',methods=["GET"])
-def health_check():
-    return 'OK', 200
-
-
 @app.route("/", methods=["GET"])
 def root():
     return jsonify({"message": "Hello World"})
@@ -541,7 +536,7 @@ def predict():
         img = Image.open(BytesIO(response.content)).convert('RGB')
         
         # Resize the image to the size expected by the model (adjustable)
-        img = img.resize((128, 128))  # Resize to smaller dimensions
+        img = img.resize((256, 256))  # Resize to smaller dimensions
         image = np.array(img) / 255.0
         image = np.expand_dims(image, axis=0)
 
