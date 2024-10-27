@@ -9,3 +9,4 @@ python-dotenv
 gunicorn
 torch
 torchvision
+opencv-python
