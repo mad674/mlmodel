@@ -7,3 +7,5 @@ Pillow
 requests
 python-dotenv
 gunicorn
+torch
+torchvision
