@@ -929,4 +929,5 @@ def predict():
 # Run the Flask app
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))  # Use Render's PORT or default to 5000
-    app.run(host="localhost", port=port)
+    app.run(host="0.0.0.0", port=port)
+
