@@ -19,6 +19,7 @@ load_dotenv()
 
 # Disable oneDNN optimizations
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 app = Flask(__name__)
 CORS(app)  # Allow CORS for all origins
