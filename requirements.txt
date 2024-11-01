@@ -11,3 +11,6 @@ torch
 torchvision
 opencv-python
 tensorflow-cpu
+fastapi
+uvicorn
+pydantic
