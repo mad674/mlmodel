@@ -33,9 +33,10 @@ app.add_middleware(
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
-output_file = "quantalized.tflite" 
-
+# file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
+# output_file = "quantalized.tflite" 
+file_id = '1lu06HZsDf6wYdcyXjUu8C4xNAvmWZ5pM'
+output_file ='model_quantized.tflite'
 # Check if the model file already exists
 if not os.path.isfile(output_file):
     # Construct the download URL
@@ -76,7 +77,8 @@ else:
 #     logging.info(f"{tflite_model_file} already exists. No conversion needed.")
 
 # Load TensorFlow Lite model into an interpreter
-interpreter = tf.lite.Interpreter(model_path="quantalized.tflite")
+# interpreter = tf.lite.Interpreter(model_path="quantalized.tflite")
+interpreter = tf.lite.Interpreter(model_path="model_quantized.tflite")
 interpreter.allocate_tensors()
 
 # Get input and output details for the mode
