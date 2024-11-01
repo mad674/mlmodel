@@ -76,7 +76,7 @@ else:
 #     logging.info(f"{tflite_model_file} already exists. No conversion needed.")
 
 # Load TensorFlow Lite model into an interpreter
-interpreter = tf.lite.Interpreter(model_path="model_quantized.tflite")
+interpreter = tf.lite.Interpreter(model_path="quantalized.tflite")
 interpreter.allocate_tensors()
 
 # Get input and output details for the mode
