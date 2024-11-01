@@ -28,8 +28,8 @@ CORS(app)  # Allow CORS for all origins
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = '1lu06HZsDf6wYdcyXjUu8C4xNAvmWZ5pM'
-output_file = "model_quantized.tflite"  # Using a TFLite model
+file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
+output_file = "quantalized.tflite"  # Using a TFLite model
 
 # Check if the model file already exists
 if not os.path.isfile(output_file):
