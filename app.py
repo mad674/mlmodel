@@ -140,7 +140,7 @@ async def predict(request: Request):
         prediction = interpreter.get_tensor(output_details[0]['index'])
 
         # Convert the prediction back to an image
-        predicted_image = (prediction[0] * 255).astype(np.uint8)
+        predicted_image = np.clip((prediction[0] + 1) * 127.5, 0, 255).astype(np.uint8)
         output_image = Image.fromarray(predicted_image)
 
         # Save the predicted image in memory (without writing to disk)
