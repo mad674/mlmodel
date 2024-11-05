@@ -1,3 +1,66 @@
+import cv2
+import numpy as np
+from PIL import Image
+import io
+
+def is_background_white(image_np, threshold=0.9):
+    # Calculate the percentage of pixels that are near white
+    white_pixels = np.all(image_np >= [240, 240, 240], axis=2)  # Adjust sensitivity if needed
+    white_ratio = np.sum(white_pixels) / white_pixels.size
+    return white_ratio > threshold
+
+def convert_background_to_white(image_data):
+    # Read the image from bytes and convert to numpy array
+    img = Image.open(io.BytesIO(image_data)).convert('RGB')
+    img_np = np.array(img)
+    
+    # Check if the background is already white
+    if is_background_white(img_np):
+        # Return original image if background is predominantly white
+        return image_data
+    
+    # Convert to HSV for better color isolation
+    hsv = cv2.cvtColor(img_np, cv2.COLOR_RGB2HSV)
+    
+    # Define a mask to select the background color range
+    lower_background = np.array([0, 0, 0])      # Lower bound for dark shades
+    upper_background = np.array([180, 255, 100]) # Upper bound for light shades
+
+    # Create a mask where non-white pixels are set to white
+    mask = cv2.inRange(hsv, lower_background, upper_background)
+    img_np[mask == 0] = [255, 255, 255] # Replace non-white background with white
+    
+    # Convert back to PIL format and then to bytes for further processing
+    white_bg_img = Image.fromarray(img_np)
+    buffer = io.BytesIO()
+    white_bg_img.save(buffer, format="PNG")
+    logging.debug("Background converted to white")
+    return buffer.getvalue()
+def pencil_sketch_effect(img):
+    if img.dtype != np.uint8:
+        img = (img * 255).astype(np.uint8)  # Convert from float (0-1) to uint8 (0-255)
+
+    # Ensure the input image has 3 channels (BGR) before converting to grayscale
+    if len(img.shape) == 2:  # Single channel image, already grayscale
+        gray_img = img
+    elif len(img.shape) == 3 and img.shape[2] == 3:  # Color image (3 channels)
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    else:
+        raise ValueError("Unexpected image format! Ensure the image has 1 or 3 channels.")
+
+    # Invert the grayscale image
+    inverted_img = cv2.bitwise_not(gray_img)
+    
+    # Apply Gaussian blur
+    blurred_img = cv2.GaussianBlur(inverted_img, (21, 21), sigmaX=0, sigmaY=0)
+    
+    # Invert the blurred image
+    inverted_blur = cv2.bitwise_not(blurred_img)
+    
+    # Create the pencil sketch effect by blending
+    sketch_img = cv2.divide(gray_img, inverted_blur, scale=256.0)
+
+    return sketch_img
 import logging
 import os
 import traceback
@@ -11,7 +74,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import gdown
 import tensorflow as tf
-
+import cv2
 # Load environment variables from .env file
 load_dotenv()
 
@@ -33,10 +96,10 @@ app.add_middleware(
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
-output_file = "quantalized.tflite" 
-# file_id = '1lu06HZsDf6wYdcyXjUu8C4xNAvmWZ5pM'
-# output_file ='model_quantized.tflite'
+file_id = '1GYJMkn2atmTxQXTYBLvXdPfu6eiBCi0d'
+output_file = 'q.tflite" 
+# file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
+# output_file = "quantalized.tflite" 
 # Check if the model file already exists
 if not os.path.isfile(output_file):
     # Construct the download URL
@@ -123,11 +186,25 @@ async def predict(request: Request):
         
         # Fetch the image from the URL
         response = requests.get(image_data)
-        img = Image.open(BytesIO(response.content)).convert('RGB')  # Ensure it's in RGB format
+        res=convert_background_to_white(response.content)
+        imge = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
         img = img.resize((256, 256))  # Resize image for the model
-        image = np.array(img) / 255.0  # Normalize the image
+        image = (np.array(img) / 127.5)-1  # Normalize the image
+        if(p.split('-')[-1]=="canvasimg.jpg"):
+            logging.debug("Pencil sketch effect")
+            image = pencil_sketch_effect(image)
+            if len(image.shape) == 3 and image.shape[2] == 1:  # Single channel grayscale
+                image = np.repeat(image, 3, axis=2)
+            elif len(image.shape) == 2:  # Grayscale without channel dimension
+                image = np.stack((image,) * 3, axis=-1)  # Duplicate across 3 channels
+
+            # Normalize and reshape to (1, 256, 256, 3) as expected by the model
+            image = image.astype(np.float32) / 255.0 
+        else:
+            logging.debug(f"No pencil sketch effect {p}")
+        
         image = np.expand_dims(image, axis=0)  # Add batch dimension
         
         # Set the input tensor
