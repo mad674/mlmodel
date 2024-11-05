@@ -187,7 +187,7 @@ async def predict(request: Request):
         # Fetch the image from the URL
         response = requests.get(image_data)
         res=convert_background_to_white(response.content)
-        imge = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
+        img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
         img = img.resize((256, 256))  # Resize image for the model
