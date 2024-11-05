@@ -97,7 +97,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
 file_id = '1GYJMkn2atmTxQXTYBLvXdPfu6eiBCi0d'
-output_file = 'q.tflite" 
+output_file = "q.tflite" 
 # file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
 # output_file = "quantalized.tflite" 
 # Check if the model file already exists
