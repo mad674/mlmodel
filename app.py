@@ -96,10 +96,8 @@ app.add_middleware(
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = '1GYJMkn2atmTxQXTYBLvXdPfu6eiBCi0d'
-output_file = "q.tflite" 
-# file_id = '1UBPlvr3KnWJzbxA9eNc-eXQbqMuL2G5N'
-# output_file = "quantalized.tflite" 
+file_id = "1KL_E5JdasiXJkMuACFT5U3DHCB5zs1fM"
+output_file = "p2p.tflite"  
 # Check if the model file already exists
 if not os.path.isfile(output_file):
     # Construct the download URL
