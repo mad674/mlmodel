@@ -188,7 +188,7 @@ async def predict(request: Request):
         img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
-        img = img.resize((256, 256))  # Resize image for the model
+        img = img.resize((1024,1024))  # Resize image for the model
         image = (np.array(img) / 127.5)-1  # Normalize the image
         if(p.split('-')[-1]=="canvasimg.jpg"):
             logging.debug("Pencil sketch effect")
