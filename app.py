@@ -211,6 +211,7 @@ async def predict(request: Request):
         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
         logging.debug("1.settensor")
         # Run the inference
+        gc.collect()
         interpreter.invoke()
         logging.debug("2.invoke inter")
         # Get the prediction result
