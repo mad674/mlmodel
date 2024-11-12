@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import io
+import gc
 
 def is_background_white(image_np, threshold=0.9):
     # Calculate the percentage of pixels that are near white
@@ -240,6 +241,8 @@ async def predict(request: Request):
             raise HTTPException(status_code=500, detail="Failed to upload image to Node.js server")
 
         logging.debug('Image successfully processed and sent to Node.js server')
+        del model_output  # if applicable
+        gc.collect()
         return {"message": "Image processed successfully", "node_response": response.json()}
     
     except Exception as e:
