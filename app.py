@@ -96,8 +96,8 @@ app.add_middleware(
 logging.basicConfig(level=logging.DEBUG)
 
 # Define the file name and output path
-file_id = "1KL_E5JdasiXJkMuACFT5U3DHCB5zs1fM"
-output_file = "p2p.tflite"  
+file_id = "1GYJMkn2atmTxQXTYBLvXdPfu6eiBCi0d"
+output_file = "q.tflite"  
 # Check if the model file already exists
 if not os.path.isfile(output_file):
     # Construct the download URL
@@ -188,7 +188,7 @@ async def predict(request: Request):
         img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
-        img = img.resize((1024,1024))  # Resize image for the model
+        img = img.resize((256,256))  # Resize image for the model
         image = (np.array(img) / 127.5)-1  # Normalize the image
         if(p.split('-')[-1]=="canvasimg.jpg"):
             logging.debug("Pencil sketch effect")
