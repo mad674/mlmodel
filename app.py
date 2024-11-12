@@ -209,13 +209,13 @@ async def predict(request: Request):
         
         # Set the input tensor
         interpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
-        
+        logging.debug("1.settensor")
         # Run the inference
         interpreter.invoke()
-
+        logging.debug("2.invoke inter")
         # Get the prediction result
         prediction = interpreter.get_tensor(output_details[0]['index'])
-
+        logging.debug("3.predict")
         # Convert the prediction back to an image
         predicted_image = np.clip((prediction[0] + 1) * 127.5, 0, 255).astype(np.uint8)
         output_image = Image.fromarray(predicted_image)
@@ -241,7 +241,7 @@ async def predict(request: Request):
             raise HTTPException(status_code=500, detail="Failed to upload image to Node.js server")
 
         logging.debug('Image successfully processed and sent to Node.js server')
-        del model_output  # if applicable
+        del prediction, predicted_image, image,output_image,image_data,data  # if applicable
         gc.collect()
         return {"message": "Image processed successfully", "node_response": response.json()}
     
