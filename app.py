@@ -630,4 +630,4 @@ async def predict(request: Request):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 5000))  # Use Render's PORT or default to 8000
-    uvicorn.run(app, host="localhost", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
