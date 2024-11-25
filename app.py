@@ -261,7 +261,7 @@
 
 
 
-import cv2
+# import cv2
 import numpy as np
 from PIL import Image
 import io
@@ -273,33 +273,34 @@ def is_background_white(image_np, threshold=0.9):
     white_ratio = np.sum(white_pixels) / white_pixels.size
     return white_ratio > threshold
 
-def convert_background_to_white(image_data):
-    # Read the image from bytes and convert to numpy array
-    img = Image.open(io.BytesIO(image_data)).convert('RGB')
-    img_np = np.array(img)
+# def convert_background_to_white(image_data):
+#     # Read the image from bytes and convert to numpy array
+#     img = Image.open(io.BytesIO(image_data)).convert('RGB')
+#     img_np = np.array(img)
     
-    # Check if the background is already white
-    if is_background_white(img_np):
-        # Return original image if background is predominantly white
-        return image_data
+#     # Check if the background is already white
+#     if is_background_white(img_np):
+#         # Return original image if background is predominantly white
+#         return image_data
     
-    # Convert to HSV for better color isolation
-    hsv = cv2.cvtColor(img_np, cv2.COLOR_RGB2HSV)
+#     # Convert to HSV for better color isolation
+#     hsv = cv2.cvtColor(img_np, cv2.COLOR_RGB2HSV)
     
-    # Define a mask to select the background color range
-    lower_background = np.array([0, 0, 0])      # Lower bound for dark shades
-    upper_background = np.array([180, 255, 100]) # Upper bound for light shades
+#     # Define a mask to select the background color range
+#     lower_background = np.array([0, 0, 0])      # Lower bound for dark shades
+#     upper_background = np.array([180, 255, 100]) # Upper bound for light shades
 
-    # Create a mask where non-white pixels are set to white
-    mask = cv2.inRange(hsv, lower_background, upper_background)
-    img_np[mask == 0] = [255, 255, 255] # Replace non-white background with white
+#     # Create a mask where non-white pixels are set to white
+#     mask = cv2.inRange(hsv, lower_background, upper_background)
+#     img_np[mask == 0] = [255, 255, 255] # Replace non-white background with white
     
-    # Convert back to PIL format and then to bytes for further processing
-    white_bg_img = Image.fromarray(img_np)
-    buffer = io.BytesIO()
-    white_bg_img.save(buffer, format="PNG")
-    logging.debug("Background converted to white")
-    return buffer.getvalue()
+#     # Convert back to PIL format and then to bytes for further processing
+#     white_bg_img = Image.fromarray(img_np)
+#     buffer = io.BytesIO()
+#     white_bg_img.save(buffer, format="PNG")
+#     logging.debug("Background converted to white")
+#     return buffer.getvalue()
+
 def pencil_sketch_effect(img):
     if img.dtype != np.uint8:
         img = (img * 255).astype(np.uint8)  # Convert from float (0-1) to uint8 (0-255)
@@ -338,7 +339,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import gdown
 import tensorflow as tf
-import cv2
+# import cv2
 # Load environment variables from .env file
 load_dotenv()
 
@@ -465,7 +466,7 @@ async def predict(request: Request):
         
         # Fetch the image from the URL
         response = requests.get(image_data)
-        res=convert_background_to_white(response.content)
+        res=response.content
         img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
@@ -560,7 +561,7 @@ async def predict(request: Request):
         
         # Fetch the image from the URL
         response = requests.get(image_data)
-        res=convert_background_to_white(response.content)
+        res=response.content
         img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
         # Preprocess the image for the model
