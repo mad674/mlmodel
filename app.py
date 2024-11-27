@@ -364,8 +364,8 @@ logging.basicConfig(level=logging.DEBUG)
 # Define the file name and output path
 file_id = '1KY1WYAGDmppH06a1376qcQZtlMxGaXOE'
 output_file ='gold.tflite'
-sfile_id = '1bSj8H9Dy9W-zqPzpAeyamu9yG1wpUkl7'
-soutput_file ='silver.tflite'
+# sfile_id = '1bSj8H9Dy9W-zqPzpAeyamu9yG1wpUkl7'
+# soutput_file ='silver.tflite'
 # Check if the model fle already exists
 if not os.path.isfile(output_file):
     # Construct the download URL
@@ -374,13 +374,13 @@ if not os.path.isfile(output_file):
     gdown.download(download_url, output_file, quiet=False)
 else:
     logging.info(f"{output_file} already exists. No download needed.")
-if not os.path.isfile(soutput_file):
-    # Construct the download URL
-    sdownload_url = f"https://drive.google.com/uc?id={sfile_id}"
-    # Download the model file
-    gdown.download(sdownload_url, soutput_file, quiet=False)
-else:
-    logging.info(f"{soutput_file} already exists. No download needed.")
+# if not os.path.isfile(soutput_file):
+#     # Construct the download URL
+#     sdownload_url = f"https://drive.google.com/uc?id={sfile_id}"
+#     # Download the model file
+#     gdown.download(sdownload_url, soutput_file, quiet=False)
+# else:
+#     logging.info(f"{soutput_file} already exists. No download needed.")
 # Load the mode
 # # Convert the model to TensorFlow Lite format with quantization
 # tflite_model_file = 'model_quantized.tflite'
@@ -420,13 +420,13 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-sinterpreter = tf.lite.Interpreter(model_path=soutput_file)
-# interpreter = tf.lite.Interpreter(model_path="model_quantized.tflite")
-sinterpreter.allocate_tensors()
+# sinterpreter = tf.lite.Interpreter(model_path=soutput_file)
+# # interpreter = tf.lite.Interpreter(model_path="model_quantized.tflite")
+# sinterpreter.allocate_tensors()
 
-# Get input and output details for the mode
-sinput_details = sinterpreter.get_input_details()
-soutput_details = sinterpreter.get_output_details()
+# # Get input and output details for the mode
+# sinput_details = sinterpreter.get_input_details()
+# soutput_details = sinterpreter.get_output_details()
 
 class ImageRequest(BaseModel):
     image: dict
@@ -531,100 +531,100 @@ async def predict(request: Request):
         logging.debug(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/silver")
-async def predict(request: Request):
-    # Set maximum upload size to 16 MB
-    max_upload_size = 16 * 1024 * 1024  # 16 MB
-    content_length = request.headers.get("content-length")
+# @app.post("/silver")
+# async def predict(request: Request):
+#     # Set maximum upload size to 16 MB
+#     max_upload_size = 16 * 1024 * 1024  # 16 MB
+#     content_length = request.headers.get("content-length")
 
-    if content_length and int(content_length) > max_upload_size:
-        raise HTTPException(status_code=413, detail="Payload Too Large")
+#     if content_length and int(content_length) > max_upload_size:
+#         raise HTTPException(status_code=413, detail="Payload Too Large")
 
-    try:
-        logging.debug("Received request for prediction.")
+#     try:
+#         logging.debug("Received request for prediction.")
         
-        # Parse JSON body
-        data = await request.json()
+#         # Parse JSON body
+#         data = await request.json()
         
-        # Check for image data
-        if 'image' not in data:
-            raise HTTPException(status_code=400, detail="No image data provided")
+#         # Check for image data
+#         if 'image' not in data:
+#             raise HTTPException(status_code=400, detail="No image data provided")
         
-        # Extract image URL from the JSON structure
-        image_data = data['image']['_streams'][1]  # Adjust according to your structure
-        a = image_data.split('uploads/')[1]
-        p = a
-        a = a[len(a)-(len(a)-a.find('.'))+1:].upper()
-        if a == 'JPG':
-            a = 'JPEG'
-            p = p.replace('JPG', 'JPEG')
+#         # Extract image URL from the JSON structure
+#         image_data = data['image']['_streams'][1]  # Adjust according to your structure
+#         a = image_data.split('uploads/')[1]
+#         p = a
+#         a = a[len(a)-(len(a)-a.find('.'))+1:].upper()
+#         if a == 'JPG':
+#             a = 'JPEG'
+#             p = p.replace('JPG', 'JPEG')
         
-        # Fetch the image from the URL
-        response = requests.get(image_data)
-        res=response.content
-        img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
+#         # Fetch the image from the URL
+#         response = requests.get(image_data)
+#         res=response.content
+#         img = Image.open(BytesIO(res)).convert('RGB')  # Ensure it's in RGB format
         
-        # Preprocess the image for the model
-        img = img.resize((1024, 1024))  # Resize image for the model
-        image = (np.array(img) / 127.5)-1  # Normalize the image
-        if(p.split('-')[-1]=="canvasimg.jpg"):
-            logging.debug("Pencil sketch effect")
-            image = pencil_sketch_effect(image)
-            if len(image.shape) == 3 and image.shape[2] == 1:  # Single channel grayscale
-                image = np.repeat(image, 3, axis=2)
-            elif len(image.shape) == 2:  # Grayscale without channel dimension
-                image = np.stack((image,) * 3, axis=-1)  # Duplicate across 3 channels
+#         # Preprocess the image for the model
+#         img = img.resize((1024, 1024))  # Resize image for the model
+#         image = (np.array(img) / 127.5)-1  # Normalize the image
+#         if(p.split('-')[-1]=="canvasimg.jpg"):
+#             logging.debug("Pencil sketch effect")
+#             image = pencil_sketch_effect(image)
+#             if len(image.shape) == 3 and image.shape[2] == 1:  # Single channel grayscale
+#                 image = np.repeat(image, 3, axis=2)
+#             elif len(image.shape) == 2:  # Grayscale without channel dimension
+#                 image = np.stack((image,) * 3, axis=-1)  # Duplicate across 3 channels
 
-            # Normalize and reshape to (1, 256, 256, 3) as expected by the model
-            image = image.astype(np.float32) / 255.0 
-        else:
-            logging.debug(f"No pencil sketch effect {p}")
+#             # Normalize and reshape to (1, 256, 256, 3) as expected by the model
+#             image = image.astype(np.float32) / 255.0 
+#         else:
+#             logging.debug(f"No pencil sketch effect {p}")
         
-        image = np.expand_dims(image, axis=0)  # Add batch dimension
+#         image = np.expand_dims(image, axis=0)  # Add batch dimension
         
-        # Set the input tensor
-        sinterpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
-        logging.debug("1.settensor")
-        # Run the inference
-        gc.collect()
-        sinterpreter.invoke()
-        logging.debug("2.invoke inter")
-        # Get the prediction result
-        prediction = sinterpreter.get_tensor(output_details[0]['index'])
-        logging.debug("3.predict")
-        # Convert the prediction back to an image
-        predicted_image = np.clip((prediction[0] + 1) * 127.5, 0, 255).astype(np.uint8)
-        output_image = Image.fromarray(predicted_image)
+#         # Set the input tensor
+#         sinterpreter.set_tensor(input_details[0]['index'], image.astype(np.float32))
+#         logging.debug("1.settensor")
+#         # Run the inference
+#         gc.collect()
+#         sinterpreter.invoke()
+#         logging.debug("2.invoke inter")
+#         # Get the prediction result
+#         prediction = sinterpreter.get_tensor(output_details[0]['index'])
+#         logging.debug("3.predict")
+#         # Convert the prediction back to an image
+#         predicted_image = np.clip((prediction[0] + 1) * 127.5, 0, 255).astype(np.uint8)
+#         output_image = Image.fromarray(predicted_image)
 
-        # Save the predicted image in memory (without writing to disk)
-        image_io = BytesIO()
-        output_image.save(image_io, format=a)  # Save as JPEG or other format
-        image_io.seek(0)  # Move to the beginning of the BytesIO buffer
+#         # Save the predicted image in memory (without writing to disk)
+#         image_io = BytesIO()
+#         output_image.save(image_io, format=a)  # Save as JPEG or other format
+#         image_io.seek(0)  # Move to the beginning of the BytesIO buffer
 
-        # Send the image to the Node.js server
-        files = {
-            'images': (f'{p}', image_io, f'image/{a.lower()}'),
-            'name': (None, data['user']),
-            'filename': (None, f'{p}'),
-        }
+#         # Send the image to the Node.js server
+#         files = {
+#             'images': (f'{p}', image_io, f'image/{a.lower()}'),
+#             'name': (None, data['user']),
+#             'filename': (None, f'{p}'),
+#         }
         
-        logging.debug(f"Sending image to Node.js server for user: {data['user']}")
-        response = requests.post(f'https://backend-9oaz.onrender.com/vendor/sktvendor/{data["user"]}', files=files)
+#         logging.debug(f"Sending image to Node.js server for user: {data['user']}")
+#         response = requests.post(f'https://backend-9oaz.onrender.com/vendor/sktvendor/{data["user"]}', files=files)
 
-        # Check if the response from Node.js server is successful
-        if response.status_code != 200:
-            logging.error(f"Failed to upload image to Node.js server, status code: {response.status_code}")
-            raise HTTPException(status_code=500, detail="Failed to upload image to Node.js server")
+#         # Check if the response from Node.js server is successful
+#         if response.status_code != 200:
+#             logging.error(f"Failed to upload image to Node.js server, status code: {response.status_code}")
+#             raise HTTPException(status_code=500, detail="Failed to upload image to Node.js server")
 
-        logging.debug('Image successfully processed and sent to Node.js server')
-        del prediction, predicted_image, image,output_image,image_data,data  # if applicable
-        gc.collect()
-        return {"message": "Image processed successfully", "node_response": response.json()}
+#         logging.debug('Image successfully processed and sent to Node.js server')
+#         del prediction, predicted_image, image,output_image,image_data,data  # if applicable
+#         gc.collect()
+#         return {"message": "Image processed successfully", "node_response": response.json()}
     
-    except Exception as e:
-        logging.error(f"Error processing the image: {str(e)}")
-        logging.debug(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=str(e))
+#     except Exception as e:
+#         logging.error(f"Error processing the image: {str(e)}")
+#         logging.debug(traceback.format_exc())
+#         raise HTTPException(status_code=500, detail=str(e))
 
 # Run the FastAPI app
 if __name__ == "__main__":
