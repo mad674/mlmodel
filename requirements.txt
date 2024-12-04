@@ -1,7 +1,7 @@
 #Flask
 #Flask-CORS
 tensorflow==2.12
-keras=2.12
+keras==2.12
 gdown
 numpy
 Pillow
