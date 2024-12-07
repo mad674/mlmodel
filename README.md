@@ -113,3 +113,5 @@ This structured approach allows GANs to progressively improve their ability to g
 ### install neccessary packages with command pip install -r requirements.txt
 ### prefer python version =10
 ### input is image form data and userID
+### run the code using command python app.py
+
