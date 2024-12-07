@@ -109,3 +109,7 @@ For tasks like sketch-to-color translation, visual quality is paramount since fi
 - **Image Generation and Evaluation**: Generate and evaluate output images, improving based on metrics or visual inspection.
 
 This structured approach allows GANs to progressively improve their ability to generate realistic, detailed images from simpler sketches, eventually achieving high-quality results for image-to-image translation tasks.
+
+### install neccessary packages with command pip install -r requirements.txt
+### prefer python version =10
+### input is image form data and userID
