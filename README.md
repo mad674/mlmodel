@@ -114,4 +114,4 @@ This structured approach allows GANs to progressively improve their ability to g
 ### prefer python version =10
 ### input is image form data and userID
 ### run the code using command python app.py
-
+### It has classification wheather input sketch img is jewelry or not and classification of types of jewelry like earring,bracelet,ring,necklace.
