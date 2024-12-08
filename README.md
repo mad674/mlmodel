@@ -1,4 +1,4 @@
-Sure! Here’s a breakdown of the full process of an image-to-image translation GAN, detailing each stage of the architecture, loss functions, and training steps used in tasks like sketch-to-color generation. This explanation combines both architecture theory and the process for achieving effective training.
+The process of an image-to-image translation GAN, detailing each stage of the architecture, loss functions, and training steps used in tasks like sketch-to-color generation. 
 
 ---
 
