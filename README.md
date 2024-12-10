@@ -115,3 +115,74 @@ This structured approach allows GANs to progressively improve their ability to g
 ### input is image form data and userID
 ### run the code using command python app.py
 ### It has classification wheather input sketch img is jewelry or not and classification of types of jewelry like earring,bracelet,ring,necklace.
+
+
+
+### model summary
+Model: "model"
+__________________________________________________________________________________________________
+ Layer (type)                Output Shape                 Param #   Connected to                  
+==================================================================================================
+ input_1 (InputLayer)        [(None, 1024, 1024, 3)]      0         []                            
+                                                                                                  
+ sequential (Sequential)     (None, 512, 512, 64)         3072      ['input_1[0][0]']             
+                                                                                                  
+ sequential_1 (Sequential)   (None, 256, 256, 128)        131584    ['sequential[0][0]']          
+                                                                                                  
+ sequential_2 (Sequential)   (None, 128, 128, 256)        525312    ['sequential_1[0][0]']        
+                                                                                                  
+ sequential_3 (Sequential)   (None, 64, 64, 512)          2099200   ['sequential_2[0][0]']        
+                                                                                                  
+ sequential_4 (Sequential)   (None, 32, 32, 512)          4196352   ['sequential_3[0][0]']        
+                                                                                                  
+ sequential_5 (Sequential)   (None, 16, 16, 512)          4196352   ['sequential_4[0][0]']        
+                                                                                                  
+ sequential_6 (Sequential)   (None, 8, 8, 512)            4196352   ['sequential_5[0][0]']        
+                                                                                                  
+ sequential_7 (Sequential)   (None, 4, 4, 512)            4196352   ['sequential_6[0][0]']        
+                                                                                                  
+ sequential_8 (Sequential)   (None, 2, 2, 512)            4196352   ['sequential_7[0][0]']        
+                                                                                                  
+ sequential_9 (Sequential)   (None, 4, 4, 512)            4196352   ['sequential_8[0][0]']        
+                                                                                                  
+ concatenate (Concatenate)   (None, 4, 4, 1024)           0         ['sequential_9[0][0]',        
+                                                                     'sequential_7[0][0]']        
+                                                                                                  
+ sequential_10 (Sequential)  (None, 8, 8, 512)            8390656   ['concatenate[0][0]']         
+                                                                                                  
+ concatenate_1 (Concatenate  (None, 8, 8, 1024)           0         ['sequential_10[0][0]',       
+ )                                                                   'sequential_6[0][0]']        
+                                                                                                  
+ sequential_11 (Sequential)  (None, 16, 16, 512)          8390656   ['concatenate_1[0][0]']       
+                                                                                                  
+ concatenate_2 (Concatenate  (None, 16, 16, 1024)         0         ['sequential_11[0][0]',       
+ )                                                                   'sequential_5[0][0]']        
+                                                                                                  
+ sequential_12 (Sequential)  (None, 32, 32, 512)          8390656   ['concatenate_2[0][0]']       
+                                                                                                  
+ concatenate_3 (Concatenate  (None, 32, 32, 1024)         0         ['sequential_12[0][0]',       
+ )                                                                   'sequential_4[0][0]']        
+                                                                                                  
+ sequential_13 (Sequential)  (None, 64, 64, 256)          4195328   ['concatenate_3[0][0]']       
+                                                                                                  
+ concatenate_4 (Concatenate  (None, 64, 64, 768)          0         ['sequential_13[0][0]',       
+ )                                                                   'sequential_3[0][0]']        
+                                                                                                  
+ sequential_14 (Sequential)  (None, 128, 128, 128)        1573376   ['concatenate_4[0][0]']       
+                                                                                                  
+ concatenate_5 (Concatenate  (None, 128, 128, 384)        0         ['sequential_14[0][0]',       
+ )                                                                   'sequential_2[0][0]']        
+                                                                                                  
+ sequential_15 (Sequential)  (None, 256, 256, 64)         393472    ['concatenate_5[0][0]']       
+                                                                                                  
+ concatenate_6 (Concatenate  (None, 256, 256, 192)        0         ['sequential_15[0][0]',       
+ )                                                                   'sequential_1[0][0]']        
+                                                                                                  
+ conv2d_transpose_7 (Conv2D  (None, 512, 512, 3)          9219      ['concatenate_6[0][0]']       
+ Transpose)                                                                                       
+                                                                                                  
+==================================================================================================
+Total params: 59280643 (226.14 MB)
+Trainable params: 59268739 (226.09 MB)
+Non-trainable params: 11904 (46.50 KB)
+__________________________________________________________________________________________________
