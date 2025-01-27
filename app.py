@@ -50,7 +50,7 @@ backend_url="http://localhost:4000"
 #loading model
 # file_id = ['1-OucVvEiaEqqKNx0IIDdjMNLYTZa4LAZ','1-A7KFVxO66TcgmGG-klWKCBVLb8uGSuL','10y0PBs-N9CCWFIzoMsHGN5MR9nasUyQH','1cGqzuPbH5WGDZ1wS5ATNcFPHSmZ_7UgC','1-05P0iR-eCWVadVL-gBM2qsxebMmX8Mf','1--WUD_oz7gwZy8d1hT6X0es362t0-LeJ','1IPUJj4d4fNeimhTeFfFCILXwGiTIOjTL','1-lGYX59mO7daC50OaMXcvQ_HoW4Vb-jj']
 # output_file =['n1024p2p410.h5','dia105.h5','tepoch50.h5','jepoch10.h5','ear20.h5','ring36.h5','necklace5.h5','necklaces50.h5']
-file_id = ['1-OucVvEiaEqqKNx0IIDdjMNLYTZa4LAZ','1-A7KFVxO66TcgmGG-klWKCBVLb8uGSuL','10y0PBs-N9CCWFIzoMsHGN5MR9nasUyQH','1cGqzuPbH5WGDZ1wS5ATNcFPHSmZ_7UgC']
+file_id = ['1fal-NtscNtEj0pqlw7HnzdZ_fRRSgr0w','1-A7KFVxO66TcgmGG-klWKCBVLb8uGSuL','10y0PBs-N9CCWFIzoMsHGN5MR9nasUyQH','1cGqzuPbH5WGDZ1wS5ATNcFPHSmZ_7UgC']
 output_file =['n1024p2p410.h5','dia105.h5','tepoch50.h5','jepoch10.h5']
 for(i,j) in zip(file_id,output_file):
     if not os.path.isfile(j):
