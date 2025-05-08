@@ -2,17 +2,17 @@ The process of an image-to-image translation GAN, detailing each stage of the ar
 https://huggingface.co/spaces/madhi9/jewelry/tree/main
 ---
 
-Pix2Pix (Conditional GAN)
+**Pix2Pix (Conditional GAN)**
 
-Why: It is specifically designed for image-to-image translation tasks like turning sketches into realistic images.
+**Why: It is specifically designed for image-to-image translation tasks like turning sketches into realistic images.**
 
-How it works:
+**How it works:**
 
-Uses a U-Net as the generator (preserves spatial information).
+**Uses a U-Net as the generator (preserves spatial information).**
 
-Uses a PatchGAN as the discriminator (focuses on high-frequency details).
+**Uses a PatchGAN as the discriminator (focuses on high-frequency details).**
 
-Trained on: Pairs of images (Sketch ↔ Realistic Jewelry Image).
+**Trained on: Pairs of images (Sketch ↔ Realistic Jewelry Image).**
 
 
 ### Process Overview for Image-to-Image Translation GANs
