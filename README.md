@@ -2,7 +2,8 @@ The process of an image-to-image translation GAN, detailing each stage of the ar
 https://huggingface.co/spaces/madhi9/jewelry/tree/main
 ---
 
-###Pix2Pix (Conditional GAN)
+Pix2Pix (Conditional GAN)
+
 Why: It is specifically designed for image-to-image translation tasks like turning sketches into realistic images.
 
 How it works:
