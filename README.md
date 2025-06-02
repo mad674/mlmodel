@@ -1,5 +1,5 @@
-###3-Tier Client-Server Architecture with Model-Serving Inference Pipeline:
-###Separates concerns into Presentation (React frontend), Application (Flask backend API), and Data/Model (TensorFlow GAN).
+**3-Tier Client-Server Architecture with Model-Serving Inference Pipeline:
+Separates concerns into Presentation (React frontend), Application (Flask backend API), and Data/Model (TensorFlow GAN).**
 
 The process of an image-to-image translation GAN, detailing each stage of the architecture, loss functions, and training steps used in tasks like sketch-to-color generation. 
 https://huggingface.co/spaces/madhi9/jewelry/tree/main
