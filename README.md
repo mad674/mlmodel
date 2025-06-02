@@ -3,6 +3,7 @@ Separates concerns into Presentation (React frontend), Application (Flask backen
 
 The process of an image-to-image translation GAN, detailing each stage of the architecture, loss functions, and training steps used in tasks like sketch-to-color generation. 
 https://huggingface.co/spaces/madhi9/jewelry/tree/main
+
 ---
 
 **Pix2Pix (Conditional GAN)**
